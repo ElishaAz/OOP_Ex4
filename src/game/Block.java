@@ -31,5 +31,4 @@ public class Block extends Rectangle
 	{
 		return new Block(this);
 	}
-
 }

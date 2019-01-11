@@ -30,6 +30,12 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 		this(0);
 	}
 
+	public void setDistance(double distance)
+	{
+		this.distance = distance;
+		updatePaths();
+	}
+
 	/**
 	 * Updates the Paths for {@link #getPath(LatLon, LatLon)}. This is  called after every change to the list.
 	 */
@@ -38,88 +44,57 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 		outerPoints = getOuterPoints(distance);
 		moves = new Path[outerPoints.length][outerPoints.length];
 
-		updateGraph();
-
-		boolean go = true;
-		boolean valueWasSet = true;
-
-		while (go)
+		for (int i = 0; i < outerPoints.length; i++)
 		{
-			for (int x = 0; x < moves.length; x++)
+			for (int j = 0; j < outerPoints.length; j++)
 			{
-				for (int y = 0; y < moves[x].length; y++)
+				if (!this.passesThrough(outerPoints[i], outerPoints[j]))
 				{
-					if (x == y)
+					Path newPath = new Path();
+					newPath.add(outerPoints[i]);
+					newPath.add(outerPoints[j]);
+					if (moves[i][j] == null)
 					{
-						if (moves[x][y] == null)
-						{
-							moves[x][y] = new Path();
-							valueWasSet = true;
-						}
-					} else if (!this.passesThrough(outerPoints[x], outerPoints[y]))
-					{
-						if (moves[x][y] == null)
-						{
-							moves[x][y] = new Path();
-							moves[x][y].add(outerPoints[x]);
-							moves[x][y].add(outerPoints[y]);
-							valueWasSet = true;
-						}
+						moves[i][j] = newPath;
 					} else
 					{
-						double minDist = Double.POSITIVE_INFINITY;
-						int index = -1;
-						for (int i = 0; i < graph.get(x).size(); i++)
+						if (moves[i][j].distance() > newPath.distance())
 						{
-							int current = graph.get(x).get(i);
-
-							if (moves[current][y] != null)
-							{
-								if (moves[current][y].distance() < minDist)
-								{
-									minDist = moves[current][y].distance();
-									index = current;
-								}
-							}
-						}
-						if (index >= 0)
-						{
-							Path p = moves[index][y].clone();
-							p.addAtStart(outerPoints[x]);
-							if (!moves[x][y].equals(p))
-							{
-								valueWasSet = true;
-							}
-							moves[x][y] = p;
+							moves[i][j] = newPath;
 						}
 					}
 				}
 			}
-
-			if (!valueWasSet)
-				go = false;
-			valueWasSet = false;
 		}
+
+		for (int i = 0; i < outerPoints.length; i++)
+		{
+			for (int x = 0; x < outerPoints.length; x++)
+			{
+				for (int y = 0; y < outerPoints.length; y++)
+				{
+					if (x == y)
+					{
+						moves[x][y] = new Path().add(outerPoints[x]).add(outerPoints[y]);
+					}
+					if (dist(x, i) + dist(i, y) < dist(x, y))
+					{
+						moves[x][y] = moves[x][i].clone().addAll(moves[i][y]);
+					}
+				}
+			}
+		}
+	}
+
+	private double dist(int x, int y)
+	{
+		if (moves[x][y] == null)
+			return Double.POSITIVE_INFINITY;
+		else
+			return moves[x][y].distance();
 	}
 
 	private LatLon[] outerPoints;
-
-	private List<List<Integer>> graph;
-
-	private void updateGraph()
-	{
-		graph = new ArrayList<>();
-		for (LatLon outerPoint : outerPoints)
-		{
-			ArrayList<Integer> links = new ArrayList<>();
-			for (int i = 0; i < outerPoints.length; i++)
-			{
-				if (!this.passesThrough(outerPoint, outerPoints[i]))
-					links.add(i);
-			}
-			graph.add(links);
-		}
-	}
 
 	/**
 	 * Calculates the shortest path from {@code from} to {@code to}.
@@ -137,14 +112,12 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 
 		if (!this.passesThrough(from, to))
 		{
-			Path path = new Path();
-			path.add(from);
-			path.add(to);
-			return path;
+			return new Path().add(from).add(to);
 		}
 
 		List<Integer> visiFrom = new ArrayList<>();
 		List<Integer> visiTo = new ArrayList<>();
+
 		for (int i = 0; i < outerPoints.length; i++)
 		{
 			if (!this.passesThrough(from, outerPoints[i]))
@@ -171,7 +144,7 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 
 		if (dist != Double.POSITIVE_INFINITY)
 		{
-			return moves[indexFrom][indexTo].clone();
+			return new Path().add(from).addAll(moves[indexFrom][indexTo]).add(to);
 		} else return null;
 	}
 
@@ -250,7 +223,7 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 		List<LatLon> ans = new ArrayList<>();
 		for (Block b : this.values())
 		{
-			LatLon[] points = b.getOuterPoints(distance);
+			LatLon[] points = b.getOuterPoints(distance + 0.0001);
 			for (var point : points)
 			{
 				if (!this.isInside(point))

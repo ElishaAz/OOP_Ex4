@@ -32,20 +32,27 @@ public class Path implements Cloneable
 		return true;
 	}
 
-	public void add(LatLon point)
+	public Path add(LatLon point)
 	{
 		points.add(point);
+		return this;
 	}
 
-	public void addAtStart(LatLon point)
+	public Path addAll(Path other)
 	{
-		points.add(0, point);
+		points.addAll(other.points);
 
+		return this;
 	}
 
 	public LatLon getPoint(int index)
 	{
 		return points.get(index);
+	}
+
+	public List<LatLon> getPoints()
+	{
+		return points;
 	}
 
 	public int size()

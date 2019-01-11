@@ -105,7 +105,6 @@ public class UserPlay
 	{
 		if (path == null || !to.equals(oldTo))
 		{
-			System.out.println(path == null);
 			path = game.pathTo(to);
 			oldTo = to.clone();
 			pathIndex = 1;
@@ -113,6 +112,7 @@ public class UserPlay
 		if (isPressed && path != null)
 		{
 			pathIndex = game.moveAlong(path, pathIndex);
+			panel.paintPath(path);
 			panel.repaint();
 		}
 	}

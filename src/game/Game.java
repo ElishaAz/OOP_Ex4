@@ -109,7 +109,10 @@ public class Game implements AutoCloseable
 			if (isSafeMove(place))
 			{
 				moveTo(place);
-			} else return -2;
+			} else
+			{
+				throw new IllegalArgumentException("Path is not safe");
+			}
 
 		} else
 		{
@@ -131,7 +134,10 @@ public class Game implements AutoCloseable
 				if (isSafeMove(afterMove(place))) // if it's safe to overshoot
 				{
 					moveTo(place);
-				} else return -2;
+				} else
+				{
+					throw new InternalError();
+				}
 			}
 		}
 		return index;

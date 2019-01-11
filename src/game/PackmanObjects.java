@@ -76,6 +76,7 @@ public class PackmanObjects implements IGameObjects, Cloneable
 				set.get(typeString).update(id, args);
 			}
 		}
+
 	}
 
 	private void setMapBox(String... args)
@@ -100,6 +101,8 @@ public class PackmanObjects implements IGameObjects, Cloneable
 		LatLon position = new LatLon(args[Player.latIndex], args[Player.lonIndex]);
 
 		player = new Player(position, args[Player.speedIndex], args[Player.radiusIndex]);
+
+		blocks.setDistance(player.radius);
 	}
 
 	private void setPackman(int id, double... args)

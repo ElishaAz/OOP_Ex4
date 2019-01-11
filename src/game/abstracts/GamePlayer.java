@@ -19,7 +19,7 @@ public abstract class GamePlayer implements IMobileGameObject
 	private LatLon lastPosition;
 	public final double speed;
 	/* radius in meters */
-	protected double radius;
+	public final double radius;
 
 	protected GamePlayer(LatLon position,double speed, double radius)
 	{
@@ -68,23 +68,5 @@ public abstract class GamePlayer implements IMobileGameObject
 		double scalar = radius / point.distance(position);
 		Vector2D dist = point.distanceVector(position);
 		return dist.minus(dist.times(scalar));
-	}
-
-	@Override
-	public Object clone()
-	{
-		try
-		{
-			GamePlayer player = (GamePlayer) super.clone();
-
-			player.position = position.clone();
-			player.lastPosition = position.clone();
-			player.radius = radius;
-
-			return player;
-		} catch (CloneNotSupportedException e)
-		{
-			throw new InternalError();
-		}
 	}
 }

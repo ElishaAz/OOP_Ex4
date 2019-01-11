@@ -4,6 +4,8 @@ import game.interfaces.IImmobileGameObject;
 import geo.LatLon;
 import geo.Vector2D;
 
+import java.util.Arrays;
+
 /**
  * @author Elisha
  */
@@ -31,11 +33,13 @@ public abstract class Rectangle implements IImmobileGameObject
 	{
 		if (min.getLat() <= point.getLat() && point.getLat() <= max.getLat())
 			if (min.getLon() <= point.getLon() && point.getLon() <= max.getLon())
+			{
 				return true;
+			}
 
-		if (max.getLat() <= point.getLat() && point.getLat() <= min.getLat())
-			if (max.getLon() <= point.getLon() && point.getLon() <= min.getLon())
-				return true;
+//		if (max.getLat() <= point.getLat() && point.getLat() <= min.getLat())
+//			if (max.getLon() <= point.getLon() && point.getLon() <= min.getLon())
+//				return true;
 
 		return false;
 	}
@@ -132,20 +136,21 @@ public abstract class Rectangle implements IImmobileGameObject
 	}
 
 	/**
-	 * @return an array with 4 point that are {@code distance} meters from the corners.
+	 * @return an array with 4 points that are {@code distance} meters from the corners.
 	 */
 	@Override
 	public LatLon[] getOuterPoints(double distance)
 	{
-		LatLon[] ans = new LatLon[4];
-		LatLon[] corners = getCorners();
+		LatLon outerMax = max.transformedBy(new Vector2D(distance, distance));
+		LatLon outerMin = min.transformedBy(new Vector2D(-distance, -distance));
 
-		ans[0] = corners[0].transformedBy(new Vector2D(distance, distance));
-		ans[1] = corners[1].transformedBy(new Vector2D(-distance, distance));
-		ans[2] = corners[2].transformedBy(new Vector2D(distance, -distance));
-		ans[3] = corners[3].transformedBy(new Vector2D(-distance, -distance));
-
-		return ans;
+		return new LatLon[]{outerMax, new LatLon(outerMax.getLat(), outerMin.getLon()), new LatLon(outerMin.getLat(),
+				outerMax.getLon()), outerMin};
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Rect{" + max + ", " + min + '}';
+	}
 }

@@ -38,7 +38,6 @@ public class Map
 	public Point worldToPixel(LatLon point) // (point pixels) = (point meters)/(screen meters) * (screen pixels)
 	{
 		final Vector2D screenMeters = box.min.distanceVector(box.max);
-		System.out.println("screen " + screenMeters);
 		final Vector2D pointMeters = box.min.distanceVector(point);
 
 		double x = (pointMeters.x / screenMeters.x) * screenWidth;

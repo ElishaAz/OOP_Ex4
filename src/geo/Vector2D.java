@@ -27,9 +27,9 @@ public class Vector2D
 	{
 		double x, y;
 
-		x = Math.sin(radians) * length;
+		y = Math.sin(radians) * length;
 
-		y = Math.cos(radians) * length;
+		x = Math.cos(radians) * length;
 
 		return new Vector2D(x, y);
 	}

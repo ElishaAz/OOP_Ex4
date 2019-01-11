@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.List;
 
 /**
  * @author Elisha
@@ -103,6 +104,13 @@ public class GamePanel extends JPanel
 		repaint();
 	}
 
+	Path pathToPaint = null;
+
+	void paintPath(Path path)
+	{
+		pathToPaint = path;
+	}
+
 
 	@Override
 	public void paint(Graphics g)
@@ -131,6 +139,29 @@ public class GamePanel extends JPanel
 				case End:
 					paintEnd(g);
 					break;
+			}
+
+			if (pathToPaint != null)
+			{
+				paintPath(g, Color.GRAY, Color.blue);
+			}
+		}
+	}
+
+	@SuppressWarnings("SameParameterValue")
+	private void paintPath(Graphics g, Color fill, Color outline)
+	{
+		List<LatLon> points = pathToPaint.getPoints();
+		for (int i = 0; i < points.size(); i++)
+		{
+			Point place = map.worldToPixel(points.get(i));
+
+			drawOval(g, place, packmanSize, fill, outline);
+			g.setColor(fill);
+			if (i != 0)
+			{
+				Point lastPlace = map.worldToPixel(points.get(i - 1));
+				g.drawLine(lastPlace.x, lastPlace.y, place.x, place.y);
 			}
 		}
 	}
@@ -213,7 +244,6 @@ public class GamePanel extends JPanel
 
 			g.setColor(blockOutline);
 			g.drawRect(place.x, place.y, size.x, size.y);
-			System.out.println("Block " + max + ", " + min);
 		}
 	}
 

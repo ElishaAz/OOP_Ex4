@@ -23,6 +23,6 @@ public class Ghost extends GamePlayer
 	@Override
 	public Object clone()
 	{
-		return super.clone();
+		return new Ghost(this);
 	}
 }

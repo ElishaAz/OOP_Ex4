@@ -56,6 +56,8 @@ public class GameFrame extends JFrame
 		setSize(width, height);
 		setVisible(true);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		//panel.setGame(new File("C:\\Users\\Elisha\\Documents\\Programing\\Java\\eclipse-workspace\\OOP_Ex4\\data" +
+		//		"\\temp.csv"), image);
 	}
 
 	private static JMenuBar menu(GamePanel panel)
