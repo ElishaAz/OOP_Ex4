@@ -103,6 +103,10 @@ public class GameFrame extends JFrame
 		showLongTextMessageInDialog(ConnectToDataBase.getData(),null);
 	};
 
+	/**
+	 * code from <a href=https://alvinalexander.com/java/joptionpane-showmessagedialog-example-scrolling>
+	 *     https://alvinalexander.com/java/joptionpane-showmessagedialog-example-scrolling</a>
+	 */
 	@SuppressWarnings("SameParameterValue")
 	private static void showLongTextMessageInDialog(String longMessage, Frame frame) {
 		SwingUtilities.invokeLater(() -> {
@@ -110,7 +114,7 @@ public class GameFrame extends JFrame
 			textArea.setText(longMessage);
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
-			JOptionPane.showMessageDialog(frame, scrollPane);
+			JOptionPane.showMessageDialog(frame, scrollPane, "Score board",JOptionPane.PLAIN_MESSAGE);
 		});
 	}
 
