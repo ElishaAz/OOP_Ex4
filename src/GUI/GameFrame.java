@@ -3,6 +3,7 @@ package GUI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -81,6 +82,8 @@ public class GameFrame extends JFrame
 
 		fileMenu.add(loadMenu);
 
+		newJMenuItem(fileMenu, "score board", KeyEvent.VK_S, "Shows a pop-up with the score board", showData);
+
 		menubar.add(fileMenu);
 
 		JMenu playMenu = new JMenu("Play");
@@ -93,6 +96,22 @@ public class GameFrame extends JFrame
 		menubar.add(playMenu);
 
 		return menubar;
+	}
+
+	private static ActionListener showData = (event) ->
+	{
+		showLongTextMessageInDialog(ConnectToDataBase.getData(),null);
+	};
+
+	@SuppressWarnings("SameParameterValue")
+	private static void showLongTextMessageInDialog(String longMessage, Frame frame) {
+		SwingUtilities.invokeLater(() -> {
+			JTextArea textArea = new JTextArea(6, 25);
+			textArea.setText(longMessage);
+			textArea.setEditable(false);
+			JScrollPane scrollPane = new JScrollPane(textArea);
+			JOptionPane.showMessageDialog(frame, scrollPane);
+		});
 	}
 
 	@SuppressWarnings("SameParameterValue")
