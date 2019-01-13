@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class Game implements AutoCloseable
 {
+	private static final double frameTime = 100.0;
+
 	private Play play;
 	public final PackmanObjects objects;
 	private boolean started = false;
@@ -143,6 +145,24 @@ public class Game implements AutoCloseable
 		return index;
 	}
 
+	public void randomSafeMove()
+	{
+		double degrees = Math.random() * 360;
+		boolean wasSet = false;
+		while (!wasSet)
+		{
+			if (isSafeMove(player().getPosition().transformedBy(
+					Vector2D.fromDegrees(degrees, player().speed * frameTime))))
+			{
+				wasSet = true;
+			} else
+			{
+				degrees = Math.random() * 360;
+			}
+		}
+		rotate(degrees);
+	}
+
 	/**
 	 * Checks if the move towards {@code to} will overshoot it.
 	 *
@@ -177,7 +197,7 @@ public class Game implements AutoCloseable
 	 */
 	private boolean isSafeMove(LatLon to)
 	{
-		return !blocks().passesThrough(player().getPosition(), to);
+		return !blocks().intersects(player().getPosition(), to);
 	}
 
 	/**

@@ -38,6 +38,8 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 
 	/**
 	 * Updates the Paths for {@link #getPath(LatLon, LatLon)}. This is  called after every change to the list.
+	 * Algorithm form
+	 * <a href=https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/>https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/</a>
 	 */
 	private void updatePaths()
 	{
@@ -48,7 +50,7 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 		{
 			for (int j = 0; j < outerPoints.length; j++)
 			{
-				if (!this.passesThrough(outerPoints[i], outerPoints[j]))
+				if (!this.intersects(outerPoints[i], outerPoints[j]))
 				{
 					Path newPath = new Path();
 					newPath.add(outerPoints[i]);
@@ -101,16 +103,16 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 	 *
 	 * @param from starting point.
 	 * @param to   ending point.
-	 * @return the shortest path from {@code from} to {@code to}. Null if there isn't one.
+	 * @return the shortest path from {@code from} to {@code to}. 'null' if there isn't one.
 	 */
 	public Path getPath(LatLon from, LatLon to)
 	{
 		if (isInside(from) || isInside(to))
 		{
-			throw new IllegalArgumentException(" from and to need to be accessible");
+			return null;
 		}
 
-		if (!this.passesThrough(from, to))
+		if (!this.intersects(from, to))
 		{
 			return new Path().add(from).add(to);
 		}
@@ -120,49 +122,51 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 
 		for (int i = 0; i < outerPoints.length; i++)
 		{
-			if (!this.passesThrough(from, outerPoints[i]))
+			if (!this.intersects(from, outerPoints[i]))
 				visiFrom.add(i);
-			if (!this.passesThrough(outerPoints[i], to))
+			if (!this.intersects(outerPoints[i], to))
 				visiTo.add(i);
 		}
 
-		double dist = Double.POSITIVE_INFINITY;
+		double minDist = Double.POSITIVE_INFINITY;
 		int indexFrom = -1, indexTo = -1;
 
-		for (int f = 0; f < visiFrom.size(); f++)
+		for (int f : visiFrom)
 		{
-			for (int t = 0; t < visiTo.size(); t++)
+			for (int t : visiTo)
 			{
-				if (moves[f][t].distance() < dist)
+
+				double dist;
+				if (f == t)
 				{
-					dist = moves[f][t].distance();
+					dist = from.distance(outerPoints[f]) + outerPoints[t].distance(to);
+				} else
+				{
+					dist = from.distance(outerPoints[f]) + moves[f][t].distance() + outerPoints[t].distance(to);
+				}
+				if (dist < minDist)
+				{
+					minDist = dist;
 					indexFrom = f;
 					indexTo = t;
 				}
 			}
 		}
 
-		if (dist != Double.POSITIVE_INFINITY)
+		if (minDist != Double.POSITIVE_INFINITY)
 		{
+			if (indexFrom == indexTo)
+			{
+				new Path().add(from).add(to);
+			}
+
 			return new Path().add(from).addAll(moves[indexFrom][indexTo]).add(to);
-		} else return null;
-	}
-
-	/**
-	 * Shortest path from {@code point} to anywhere on this GameObject.
-	 */
-	@Override
-	public Vector2D pathFrom(LatLon point)
-	{
-		Vector2D[] args = new Vector2D[this.size()];
-
-		for (int i = 0; i < this.size(); i++)
+		} else
 		{
-			args[i] = this.get(i).pathFrom(point);
+			return null;
 		}
-
-		return Vector2D.min(args);
 	}
+
 
 	/**
 	 * @return true if {@code point} is inside any of the blocks.
@@ -182,11 +186,11 @@ public class Blocks extends HashMap<Integer, Block> implements IImmobileGameObje
 	 * @return true if the direct path from {@code from} to {@code to} passes through any of the blocks.
 	 */
 	@Override
-	public boolean passesThrough(LatLon from, LatLon to)
+	public boolean intersects(LatLon from, LatLon to)
 	{
 		for (Block block : this.values())
 		{
-			if (block.passesThrough(from, to))
+			if (block.intersects(from, to))
 				return true;
 		}
 		return false;

@@ -13,9 +13,9 @@ public interface IImmobileGameObject extends IGameObject
 	boolean isInside(LatLon point);
 
 	/**
-	 * @return true if the direct path from {@code from} to {@code to} passes through this rectangle.
+	 * @return true if the direct path from {@code from} to {@code to} intersects this object.
 	 */
-	boolean passesThrough(LatLon from, LatLon to);
+	boolean intersects(LatLon from, LatLon to);
 
 	LatLon[] getCorners();
 

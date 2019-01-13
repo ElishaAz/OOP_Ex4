@@ -55,18 +55,4 @@ public abstract class GamePlayer implements IMobileGameObject
 	{
 		return lastPosition.distanceVector(position).normalized();
 	}
-
-	/**
-	 * Shortest path from {@code point} to anywhere on this GameObject.
-	 *
-	 * @param point
-	 */
-	@Override
-	public Vector2D pathFrom(LatLon point)
-	{
-		/* Shortest path from point to position minus radius */
-		double scalar = radius / point.distance(position);
-		Vector2D dist = point.distanceVector(position);
-		return dist.minus(dist.times(scalar));
-	}
 }

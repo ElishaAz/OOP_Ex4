@@ -37,8 +37,8 @@ public class Map
 
 	public Point worldToPixel(LatLon point) // (point pixels) = (point meters)/(screen meters) * (screen pixels)
 	{
-		final Vector2D screenMeters = box.min.distanceVector(box.max);
-		final Vector2D pointMeters = box.min.distanceVector(point);
+		final Vector2D screenMeters = flip(box.min).distanceVector(flip(box.max));
+		final Vector2D pointMeters = flip(box.min).distanceVector(flip(point));
 
 		double x = (pointMeters.x / screenMeters.x) * screenWidth;
 		double y = (1 - (pointMeters.y / screenMeters.y)) * screenHeight;
@@ -48,12 +48,17 @@ public class Map
 
 	public LatLon pixelToWorld(Point point) // (point meters) = (point pixels)/(screen pixels) * (screen meters)
 	{
-		final Vector2D screenMeters = box.min.distanceVector(box.max);
+		final Vector2D screenMeters = flip(box.min).distanceVector(flip(box.max));
 
 		double x = (point.x / (double) screenWidth) * screenMeters.x;
-		double y = (1 - (point.y / (double) screenHeight) )* screenMeters.y;
+		double y = (1 - (point.y / (double) screenHeight)) * screenMeters.y;
 
-		return box.min.transformedBy(new Vector2D(x, y));
+		return flip(flip(box.min).transformedBy(new Vector2D(x, y)));
+	}
+
+	private LatLon flip(LatLon ll)
+	{
+		return new LatLon(ll.getLon(), ll.getLat());
 	}
 
 	public int getScreenWidth()

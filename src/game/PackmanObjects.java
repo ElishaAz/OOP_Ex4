@@ -173,9 +173,34 @@ public class PackmanObjects implements IGameObjects, Cloneable
 			}
 		}
 
-		packmen.keySet().removeIf(key -> !packmenUpdated.contains(key));
+		List<Integer> packmenToRemove = new ArrayList<>();
+		List<Integer> fruitsToRemove = new ArrayList<>();
 
-		fruits.keySet().removeIf(key -> !fruitsUpdated.contains(key));
+		for (var key : packmen.keySet())
+		{
+			if (!packmenUpdated.contains(key))
+			{
+				packmenToRemove.add(key);
+			}
+		}
+
+		for (var key : fruits.keySet())
+		{
+			if (!fruitsUpdated.contains(key))
+			{
+				fruitsToRemove.add(key);
+			}
+		}
+
+		for (var pac : packmenToRemove)
+		{
+			packmen.remove(pac);
+		}
+
+		for (var fruit : fruitsToRemove)
+		{
+			fruits.remove(fruit);
+		}
 	}
 
 	@SuppressWarnings("unused")

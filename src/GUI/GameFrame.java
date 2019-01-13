@@ -56,8 +56,8 @@ public class GameFrame extends JFrame
 		setSize(width, height);
 		setVisible(true);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		//panel.setGame(new File("C:\\Users\\Elisha\\Documents\\Programing\\Java\\eclipse-workspace\\OOP_Ex4\\data" +
-		//		"\\temp.csv"), image);
+		panel.setGame(new File("C:\\Users\\Elisha\\Documents\\Programing\\Java\\eclipse-workspace\\OOP_Ex4\\data" +
+				"\\temp.csv"), image);
 	}
 
 	private static JMenuBar menu(GamePanel panel)
@@ -86,7 +86,9 @@ public class GameFrame extends JFrame
 		JMenu playMenu = new JMenu("Play");
 		playMenu.setMnemonic(KeyEvent.VK_P);
 
-		newJMenuItem(playMenu, "User", KeyEvent.VK_U, "User plays with the arrows", (event) -> panel.loadUserPlay());
+		newJMenuItem(playMenu, "User", KeyEvent.VK_U, "User play", (event) -> panel.loadUserPlay());
+
+		newJMenuItem(playMenu, "Computer", KeyEvent.VK_C, "Computer play", (event) -> panel.loadComputerPlay());
 
 		menubar.add(playMenu);
 
@@ -115,13 +117,5 @@ public class GameFrame extends JFrame
 		item.setToolTipText(toolTipText);
 		item.addActionListener(listener);
 		parent.add(item);
-	}
-
-
-	private static File[] getGames()
-	{
-		File[] ans = new File[9];
-
-		return ans;
 	}
 }

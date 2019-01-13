@@ -32,10 +32,7 @@ public abstract class Rectangle implements IImmobileGameObject
 	public boolean isInside(LatLon point)
 	{
 		if (min.getLat() <= point.getLat() && point.getLat() <= max.getLat())
-			if (min.getLon() <= point.getLon() && point.getLon() <= max.getLon())
-			{
-				return true;
-			}
+			return min.getLon() <= point.getLon() && point.getLon() <= max.getLon();
 
 //		if (max.getLat() <= point.getLat() && point.getLat() <= min.getLat())
 //			if (max.getLon() <= point.getLon() && point.getLon() <= min.getLon())
@@ -44,84 +41,31 @@ public abstract class Rectangle implements IImmobileGameObject
 		return false;
 	}
 
-
 	/**
-	 * Shortest path from {@code point} to anywhere on this GameObject.
+	 * @return true if the direct path from {@code from} to {@code to} intersects this rectangle.
 	 */
 	@Override
-	public Vector2D pathFrom(LatLon point)
-	{
-		if (isInside(point))
-			return Vector2D.zero();
-		if (point.getLat() >= max.getLat())
-		{
-			if (point.getLon() >= max.getLon())
-			{
-				return point.distanceVector(max);
-			} else if (point.getLon() >= min.getLon())
-			{
-				return point.distanceVector(new LatLon(max.getLat(), point.getLon()));
-			} else
-			{
-				return point.distanceVector(new LatLon(max.getLat(), min.getLon()));
-			}
-		} else if (point.getLat() >= min.getLat())
-		{
-			if (point.getLon() >= max.getLon())
-			{
-				return point.distanceVector(new LatLon(point.getLat(), max.getLon()));
-			} else if (point.getLon() >= min.getLon())
-			{
-				return Vector2D.zero();
-			} else
-			{
-				return point.distanceVector(new LatLon(point.getLat(), min.getLon()));
-			}
-		} else
-		{
-			if (point.getLon() >= max.getLon())
-			{
-				return point.distanceVector(new LatLon(min.getLat(), max.getLon()));
-			} else if (point.getLon() >= min.getLon())
-			{
-				return point.distanceVector(new LatLon(min.getLat(), point.getLon()));
-			} else
-			{
-				return point.distanceVector(min);
-			}
-		}
-	}
-
-	/**
-	 * @return true if the direct path from {@code from} to {@code to} passes through this rectangle.
-	 */
-	@Override
-	public boolean passesThrough(LatLon from, LatLon to)
+	public boolean intersects(LatLon from, LatLon to)
 	{
 		if (isInside(from) || isInside(to))
+		{
 			return true;
-
-		if (min.getLat() <= from.getLat() && from.getLat() <= max.getLat())
-		{
-			if (min.getLat() <= to.getLat() && to.getLat() <= max.getLat())
-			{
-				if (from.getLon() <= min.getLon() && max.getLon() <= to.getLon())
-					return true;
-				else if (to.getLon() <= min.getLon() && max.getLon() <= from.getLon())
-					return true;
-			} else if (min.getLon() <= to.getLon() && to.getLon() <= max.getLon())
-				return true;
 		}
-		if (min.getLon() <= from.getLon() && from.getLon() <= max.getLon())
+
+		LatLon[] corners = getCorners();
+
+		for (int i = 0; i < corners.length; i++)
 		{
-			if (min.getLon() <= to.getLon() && to.getLon() <= max.getLon())
+			for (int j = 0; j < corners.length; j++)
 			{
-				if (from.getLat() <= min.getLat() && max.getLat() <= to.getLat())
-					return true;
-				else if (to.getLat() <= min.getLat() && max.getLat() <= from.getLat())
-					return true;
-			} else if (min.getLat() <= to.getLat() && to.getLat() <= max.getLat())
-				return true;
+				if (j > i)
+				{
+					if (LatLon.intersect(from, to, corners[i], corners[j]))
+					{
+						return true;
+					}
+				}
+			}
 		}
 		return false;
 	}
@@ -141,8 +85,8 @@ public abstract class Rectangle implements IImmobileGameObject
 	@Override
 	public LatLon[] getOuterPoints(double distance)
 	{
-		LatLon outerMax = max.transformedBy(new Vector2D(distance, distance));
-		LatLon outerMin = min.transformedBy(new Vector2D(-distance, -distance));
+		LatLon outerMax = max.transformedBy(max.distanceVector(min).normalized().times(-distance));
+		LatLon outerMin = min.transformedBy(min.distanceVector(max).normalized().times(-distance));
 
 		return new LatLon[]{outerMax, new LatLon(outerMax.getLat(), outerMin.getLon()), new LatLon(outerMin.getLat(),
 				outerMax.getLon()), outerMin};

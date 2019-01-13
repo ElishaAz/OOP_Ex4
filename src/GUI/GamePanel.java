@@ -17,26 +17,34 @@ import java.util.List;
 public class GamePanel extends JPanel
 {
 	private static final int playerSize = 10;
-	private final Color playerFill = Color.magenta;
-	private final Color playerOutline = Color.white;
+	private static final Color playerFill = Color.magenta;
+	private static final Color playerOutline = Color.white;
 
 	private static final int packmanSize = 10;
-	private final Color packmanFill = Color.yellow;
-	private final Color packmanOutline = Color.white;
+	private static final Color packmanFill = Color.yellow;
+	private static final Color packmanOutline = Color.white;
 
 	private static final int ghostSize = 10;
-	private final Color ghostFill = Color.blue;
-	private final Color ghostOutline = Color.white;
+	private static final Color ghostFill = Color.blue;
+	private static final Color ghostOutline = Color.white;
 
 	private static final int fruitSize = 10;
-	private final Color fruitFill = Color.green;
-	private final Color fruitOutline = Color.white;
+	private static final Color fruitFill = Color.green;
+	private static final Color fruitOutline = Color.white;
 
-	private final Color blockFill = Color.black;
-	private final Color blockOutline = Color.white;
+	private static final Color blockFill = Color.black;
+	private static final Color blockOutline = Color.white;
 
-	private final Point scorePlace = new Point(10, 10);
-	private final Color scoreColor = Color.CYAN;
+	private static final Point scorePlace = new Point(10, 10);
+	private static final Color scoreColor = Color.cyan;
+
+	private static final int pathPointSize = 8;
+	private static final Color pathFill = Color.gray;
+	private static final Color pathOutline = Color.white;
+
+	private static final int pointSize = 8;
+	private static final Color pointFill = Color.darkGray;
+	private static final Color pointOutline = Color.white;
 
 	private final long timeout = 100;
 
@@ -67,6 +75,7 @@ public class GamePanel extends JPanel
 	}
 
 	private UserPlay currentPlay;
+	private ComputerPlay currentComputerPlay;
 
 	@SuppressWarnings("FieldCanBeLocal")
 	private MouseListener mouseListener = new MouseAdapter()
@@ -99,9 +108,23 @@ public class GamePanel extends JPanel
 
 	synchronized public void loadUserPlay()
 	{
-		System.out.println("load user play");
-		mode = Mode.Loading;
-		repaint();
+		if (game != null)
+		{
+			System.out.println("load user play");
+			mode = Mode.Loading;
+			repaint();
+		}
+	}
+
+	synchronized public void loadComputerPlay()
+	{
+		if (game != null)
+		{
+			System.out.println("load computer play");
+			mode = Mode.Play;
+			currentComputerPlay = new ComputerPlay(this, map, game);
+			repaint();
+		}
 	}
 
 	Path pathToPaint = null;
@@ -109,6 +132,13 @@ public class GamePanel extends JPanel
 	void paintPath(Path path)
 	{
 		pathToPaint = path;
+	}
+
+	LatLon[] pointsToPaint = null;
+
+	void paintPoints(LatLon[] points)
+	{
+		pointsToPaint = points;
 	}
 
 
@@ -134,16 +164,20 @@ public class GamePanel extends JPanel
 				case Pause:
 					paintMap(g);
 					paintScore(g);
+					if (pathToPaint != null)
+					{
+						paintPath(g, pathFill, pathOutline);
+					}
+
+					if (pointsToPaint != null)
+					{
+						paintPoints(g, pointFill, pointOutline);
+					}
 					break;
 
 				case End:
 					paintEnd(g);
 					break;
-			}
-
-			if (pathToPaint != null)
-			{
-				paintPath(g, Color.GRAY, Color.blue);
 			}
 		}
 	}
@@ -156,13 +190,24 @@ public class GamePanel extends JPanel
 		{
 			Point place = map.worldToPixel(points.get(i));
 
-			drawOval(g, place, packmanSize, fill, outline);
+			drawOval(g, place, pathPointSize, fill, outline);
 			g.setColor(fill);
 			if (i != 0)
 			{
 				Point lastPlace = map.worldToPixel(points.get(i - 1));
 				g.drawLine(lastPlace.x, lastPlace.y, place.x, place.y);
 			}
+		}
+	}
+
+	@SuppressWarnings("SameParameterValue")
+	private void paintPoints(Graphics g, Color fill, Color outline)
+	{
+		for (LatLon latLon : pointsToPaint)
+		{
+			Point place = map.worldToPixel(latLon);
+
+			drawOval(g, place, pointSize, fill, outline);
 		}
 	}
 
@@ -250,9 +295,9 @@ public class GamePanel extends JPanel
 	private void drawOval(Graphics g, Point place, int size, Color fill, Color outline)
 	{
 		g.setColor(fill);
-		g.fillOval(place.x, place.y, size, size);
+		g.fillOval(place.x - size / 2, place.y - size / 2, size, size);
 
 		g.setColor(outline);
-		g.drawOval(place.x, place.y, size, size);
+		g.drawOval(place.x - size / 2, place.y - size / 2, size, size);
 	}
 }

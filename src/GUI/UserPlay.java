@@ -32,6 +32,9 @@ public class UserPlay
 		panel.addMouseListener(mouseListener);
 		panel.addKeyListener(keyListener);
 
+		panel.paintPoints(game.objects.getBlocks().getOuterPoints(game.objects.getPlayer().radius));
+
+
 		new Thread(start).start();
 	}
 
@@ -41,12 +44,13 @@ public class UserPlay
 		System.out.println("Start");
 		while (run)
 		{
-			userPlayLoopMouse();
 
 			try
 			{
+				userPlayLoopMouse();
+
 				Thread.sleep(timeout);
-			} catch (InterruptedException e)
+			} catch (InterruptedException | IllegalArgumentException e)
 			{
 				e.printStackTrace();
 			}

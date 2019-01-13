@@ -1,12 +1,16 @@
 package geo;
 
+import java.awt.geom.Line2D;
+
 /**
  * @author Elisha
  */
 public class LatLon implements Cloneable
 {
-	public final double latMin = 0, latMax = 0;
-	public final double lonMin = 0, lonMax = 0;
+	public static final double minLatitude = -180;
+	public static final double maxLatitude = +180;
+	public static final double minLongitude = -90;
+	public static final double maxLongitude = +90;
 
 	public static final double earth_radius = 6371 * 1000;
 
@@ -37,10 +41,9 @@ public class LatLon implements Cloneable
 	{
 		double lon_norm = Math.cos(getLat() * 2 * Math.PI / 360);
 		LatLon diff = point.minus(this);
-		Vector2D dist = new Vector2D(Math.sin(diff.getLat() * 2 * Math.PI / 360) * earth_radius,
-				Math.sin(diff.getLon() * 2 * Math.PI / 360) * earth_radius * lon_norm);
 
-		return dist;
+		return new Vector2D(Math.sin(diff.getLat() * 2 * Math.PI / 360) * earth_radius,
+				Math.sin(diff.getLon() * 2 * Math.PI / 360) * earth_radius * lon_norm);
 	}
 
 	/**
@@ -88,6 +91,34 @@ public class LatLon implements Cloneable
 		return new LatLon(getLat() + latLon.getLat(), getLon() + latLon.getLon());
 	}
 
+	public boolean isOnLine(LatLon start, LatLon end, double distanceMeters)
+	{
+		double distStart = start.distance(this);
+		double distEnd = this.distance(end);
+		double distStartEnd = start.distance(end);
+		double dist = distStart + distEnd;
+
+		return distStartEnd + distanceMeters >= dist;
+	}
+
+	/**
+	 * algorithm for checking if lines intersect:
+	 * <a href=https://gamedev.stackexchange.com/questions/111100/intersection-of-a-line-and-a-rectangle>
+	 * https://gamedev.stackexchange.com/questions/111100/intersection-of-a-line-and-a-rectangle
+	 * </a>
+	 *
+	 * @param start1 starting point of first line.
+	 * @param end1   ending point of first line.
+	 * @param start2 starting point of second line.
+	 * @param end2   ending point of second line.
+	 * @return true if the ines intersect and false otherwise.
+	 */
+	public static boolean intersect(LatLon start1, LatLon end1, LatLon start2, LatLon end2)
+	{
+		return Line2D.linesIntersect(start1.getLat(), start1.getLon(), end1.getLat(), end1.getLon(),
+				start2.getLat(), start2.getLon(), end2.getLat(), end2.getLon());
+	}
+
 	@Override
 	public LatLon clone()
 	{
@@ -133,7 +164,7 @@ public class LatLon implements Cloneable
 
 	public boolean setLat(double lat)
 	{
-		if (latMin <= lat && lat <= latMax)
+		if (minLatitude <= lat && lat <= maxLatitude)
 		{
 			this.lat = lat;
 			return true;
@@ -143,7 +174,7 @@ public class LatLon implements Cloneable
 
 	public boolean setLon(double lon)
 	{
-		if (lonMin <= lon && lon <= lonMax)
+		if (minLongitude <= lon && lon <= maxLongitude)
 		{
 			this.lon = lon;
 			return true;

@@ -1,5 +1,6 @@
 package game;
 
+import game.interfaces.IEdible;
 import game.interfaces.IImmobileGameObject;
 import geo.LatLon;
 import geo.Vector2D;
@@ -7,9 +8,10 @@ import geo.Vector2D;
 /**
  * @author Elisha
  */
-public class Fruit implements IImmobileGameObject
+public class Fruit implements IImmobileGameObject, IEdible
 {
 	public static final int latIndex = 2, lonIndex = 3, weightIndex = 5;
+	public static final double fruitRadius = 1.0;
 
 	public final LatLon position;
 	public final double weight;
@@ -22,7 +24,6 @@ public class Fruit implements IImmobileGameObject
 
 
 	/**
-	 * @param point
 	 * @return true if {@code point} is inside this object.
 	 */
 	@Override
@@ -32,14 +33,12 @@ public class Fruit implements IImmobileGameObject
 	}
 
 	/**
-	 * @param from
-	 * @param to
 	 * @return true if the direct path from {@code from} to {@code to} passes through this rectangle.
 	 */
 	@Override
-	public boolean passesThrough(LatLon from, LatLon to)
+	public boolean intersects(LatLon from, LatLon to)
 	{
-		throw new UnsupportedOperationException("Fruit passesThrough not supported");
+		return position.isOnLine(from,to,fruitRadius);
 	}
 
 	@Override
@@ -54,14 +53,9 @@ public class Fruit implements IImmobileGameObject
 		return new LatLon[]{position.clone()};
 	}
 
-	/**
-	 * Shortest path from {@code point} to anywhere on this GameObject.
-	 *
-	 * @param point
-	 */
 	@Override
-	public Vector2D pathFrom(LatLon point)
+	public LatLon getPosition()
 	{
-		return point.distanceVector(position);
+		return position;
 	}
 }
