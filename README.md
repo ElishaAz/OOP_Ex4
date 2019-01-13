@@ -20,6 +20,8 @@ This project has two modes:
  
  The project interacts with a pseudo-server running the game using strings.
  
+ The project includes an option to display the score board.
+ 
  The floyad Warshall algotithm is used to calculate safe paths.
  
  # dependencies
